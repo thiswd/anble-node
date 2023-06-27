@@ -37,20 +37,14 @@ exports.findOne = (req, res) => {
 
 exports.getTopThree = async (_, res) => {
   try {
-    const artists = await prisma.artist.findMany({
-      include: {
-        songs: true,
-      },
-    });
-
-    const artistsWithTotalPlaybacks = artists.map((artist) => {
-      const totalPlaybacks = artist.songs.reduce((sum, song) => sum + song.playbacks, 0);
-      return { ...artist, totalPlaybacks };
-    });
-
-    const topThreeArtists = artistsWithTotalPlaybacks
-      .sort((a, b) => b.totalPlaybacks - a.totalPlaybacks)
-      .slice(0, 3);
+    const topThreeArtists = await prisma.$queryRaw`
+      SELECT "Artist"."id", "Artist"."name", SUM("Song"."playbacks") as "totalPlaybacks"
+      FROM "Artist"
+      LEFT JOIN "Song" ON "Artist"."id" = "Song"."artistId"
+      GROUP BY "Artist"."id"
+      ORDER BY "totalPlaybacks" DESC
+      LIMIT 3
+    `;
 
     res.send({ data: topThreeArtists });
   } catch (err) {
