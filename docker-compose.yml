@@ -11,7 +11,7 @@ services:
       - "5000:5000"
     depends_on:
       - postgres
-    env_file: .env
+    env_file: .env.docker
     volumes:
       - ./:/usr/src/app
       - /usr/src/app/node_modules
