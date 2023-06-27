@@ -6,8 +6,6 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 COPY prisma ./prisma
 
-ENV DATABASE_URL="postgres://hector@localhost:5432/postgres"
-
 RUN npm install --ignore-scripts
 RUN npx prisma generate
 
