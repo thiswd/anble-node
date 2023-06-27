@@ -41,7 +41,12 @@ exports.findOne = (req, res) => {
 
 exports.getTopTen = (req, res) => {
   prisma.song
-    .findMany()
+    .findMany({
+      take: 10,
+      orderBy: {
+        playbacks: 'desc'
+      }
+    })
     .then((data) => {
       res.send({ data });
     })
