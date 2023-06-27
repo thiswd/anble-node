@@ -35,15 +35,27 @@ exports.findOne = (req, res) => {
     });
 };
 
-exports.getTopThree = (req, res) => {
-  prisma.artist
-    .findMany()
-    .then((data) => {
-      res.send({ data });
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || "Some error occurred while retrieving artists.",
-      });
+exports.getTopThree = async (req, res) => {
+  try {
+    const artists = await prisma.artist.findMany({
+      include: {
+        songs: true,
+      },
     });
+
+    const artistsWithTotalPlaybacks = artists.map((artist) => {
+      const totalPlaybacks = artist.songs.reduce((sum, song) => sum + song.playbacks, 0);
+      return { ...artist, totalPlaybacks };
+    });
+
+    const topThreeArtists = artistsWithTotalPlaybacks
+      .sort((a, b) => b.totalPlaybacks - a.totalPlaybacks)
+      .slice(0, 3);
+
+    res.send({ data: topThreeArtists });
+  } catch (err) {
+    res.status(500).send({
+      message: err.message || "Some error occurred while retrieving artists.",
+    });
+  }
 };
