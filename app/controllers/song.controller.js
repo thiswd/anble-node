@@ -31,7 +31,7 @@ exports.findOne = (req, res) => {
     })
     .then(data => {
       if (!data)
-        res.status(404).send({ message: "Not found Song with id " + id });
+        res.status(404).send({ message: "Not found Song with id=" + id });
       else res.send({ data });
     })
     .catch(err => {
