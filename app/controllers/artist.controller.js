@@ -1,17 +1,17 @@
 const prisma = require("../../prisma");
 
 exports.findAll = (req, res) => {
-  const name = req.query.name;
+  const { name } = req.query;
   const condition = name
     ? { where: { name: { contains: name, mode: "insensitive" } } }
     : {};
 
   prisma.artist
     .findMany(condition)
-    .then((data) => {
+    .then(data => {
       res.send({ data });
     })
-    .catch((err) => {
+    .catch(err => {
       res.status(500).send({
         message: err.message || "Some error occurred while retrieving artists.",
       });
@@ -19,23 +19,23 @@ exports.findAll = (req, res) => {
 };
 
 exports.findOne = (req, res) => {
-  const id = req.params.id;
+  const { id } = req.params;
 
   prisma.artist
     .findUnique({ where: { id: Number(id) } })
-    .then((data) => {
+    .then(data => {
       if (!data)
         res.status(404).send({ message: "Not found Artist with id " + id });
       else res.send({ data });
     })
-    .catch((err) => {
+    .catch(err => {
       res
         .status(500)
-        .send({ message: "Error retrieving Artist with id=" + id });
+        .send({ message: err.message || "Error retrieving Artist with id=" + id });
     });
 };
 
-exports.getTopThree = async (req, res) => {
+exports.getTopThree = async (_, res) => {
   try {
     const artists = await prisma.artist.findMany({
       include: {
